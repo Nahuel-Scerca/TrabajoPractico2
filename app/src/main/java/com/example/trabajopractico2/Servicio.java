@@ -27,28 +27,51 @@ public class Servicio extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
 
-        while (true) {
 
-            try {
-                mostrarSms();
-                Thread.sleep(90000);
-            } catch (InterruptedException ex) {
-                Log.e("Error", ex.getMessage());
-                ex.printStackTrace();
+
+
+    @Override public int onStartCommand(Intent intent, int flags, int startId) {
+            if (ContextCompat.checkSelfPermission(this, READ_SMS) != PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Conceder Permisos", Toast.LENGTH_LONG).show();
             }
+            Runnable tarea = new Runnable()
+            {
+                public void run()
+                {
+                    try
+                    {
+                        mostrarSms();
+                        Thread.sleep(90000);
 
+                    } catch(InterruptedException e)
+                    {
+                        Log.e("Error: ", e.getMessage()); e.printStackTrace();
+                    } }
+            };
+            Thread trabajador = new Thread(tarea); trabajador.start();
 
-        }
-
-
+                return START_STICKY;
     }
 
-    public void mostrarSms() {
-        Uri uri = Uri.parse("content://sms/inbox");
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void mostrarSms() {
+        //Uri uri = Uri.parse("content://sms/inbox");
+        Uri uri =  Telephony.Sms.CONTENT_URI;
         ContentResolver cr = getContentResolver();
 
         Cursor puntero = cr.query(uri, null, null, null, null);
@@ -58,13 +81,16 @@ public class Servicio extends Service {
             while (puntero.moveToNext() && i < 5) {
 
                 String numero = puntero.getString(puntero.getColumnIndex(Telephony.Sms.ADDRESS));
-                Long fecha = puntero.getLong(puntero.getColumnIndex(Telephony.Sms.DATE));
-                String mensaje = puntero.getString(puntero.getColumnIndex(Telephony.Sms.BODY));
+
+                Long fecha = new Long(puntero.getString(puntero.getColumnIndex(Telephony.Sms.Inbox.DATE)));
                 Date date = new Date(fecha);
 
-                Log.d("Salida", "Numero de Telefono:" + numero);
-                Log.d("Salida", "Fecha" + date.toString());
-                Log.d("Salida", "Mensaje:" + mensaje);
+                String mensaje = puntero.getString(puntero.getColumnIndex(Telephony.Sms.BODY));
+
+
+                Log.d("Salida", "Numero de Telefono: " + numero);
+                Log.d("Salida", "Fecha:  " + date.toString());
+                Log.d("Salida", "Mensaje: " + mensaje);
 
                 i++;
 
