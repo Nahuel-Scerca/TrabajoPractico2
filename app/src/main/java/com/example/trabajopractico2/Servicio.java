@@ -50,21 +50,11 @@ public class Servicio extends Service {
                         Log.e("Error: ", e.getMessage()); e.printStackTrace();
                     } }
             };
-            Thread trabajador = new Thread(tarea); trabajador.start();
+            Thread trabajador = new Thread(tarea);
+            trabajador.start();
 
                 return START_STICKY;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -74,28 +64,34 @@ public class Servicio extends Service {
         Uri uri =  Telephony.Sms.CONTENT_URI;
         ContentResolver cr = getContentResolver();
 
-        Cursor puntero = cr.query(uri, null, null, null, null);
+        while(true){
 
-        if (puntero.getCount() > 0) {
-            int i = 0;
-            while (puntero.moveToNext() && i < 5) {
+            Cursor puntero = cr.query(uri, null, null, null, null);
 
-                String numero = puntero.getString(puntero.getColumnIndex(Telephony.Sms.ADDRESS));
+            if (puntero.getCount() > 0) {
+                int i = 0;
+                while (puntero.moveToNext() && i < 5) {
 
-                Long fecha = new Long(puntero.getString(puntero.getColumnIndex(Telephony.Sms.Inbox.DATE)));
-                Date date = new Date(fecha);
+                    String numero = puntero.getString(puntero.getColumnIndex(Telephony.Sms.ADDRESS));
 
-                String mensaje = puntero.getString(puntero.getColumnIndex(Telephony.Sms.BODY));
+                    Long fecha = new Long(puntero.getString(puntero.getColumnIndex(Telephony.Sms.Inbox.DATE)));
+                    Date date = new Date(fecha);
+
+                    String mensaje = puntero.getString(puntero.getColumnIndex(Telephony.Sms.BODY));
 
 
-                Log.d("Salida", "Numero de Telefono: " + numero);
-                Log.d("Salida", "Fecha:  " + date.toString());
-                Log.d("Salida", "Mensaje: " + mensaje);
+                    Log.d("Salida", "Numero de Telefono: " + numero);
+                    Log.d("Salida", "Fecha:  " + date.toString());
+                    Log.d("Salida", "Mensaje: " + mensaje);
 
-                i++;
+                    i++;
 
+
+                }
+                puntero.moveToFirst();
             }
         }
+
 
     }
 
